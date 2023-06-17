@@ -1,0 +1,31 @@
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  /* Para não estourar o container. */
+}
+
+.slide-wrapper {
+  overflow: hidden;
+}
+
+.slide {
+  display: flex;
+  transform: translate3d(-500px, 0, 0);
+}
+
+.slide li {
+  width: 80vw;
+  max-width: 800px;
+  flex-shrink: 0;
+  margin: 0 20px;
+}
