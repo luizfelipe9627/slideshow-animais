@@ -10,8 +10,8 @@ ul {
 
 img {
   display: block;
-  max-width: 100%;
   /* Para não estourar o container. */
+  max-width: 100%;
 }
 
 .slide-wrapper {
@@ -20,6 +20,7 @@ img {
 
 .slide {
   display: flex;
+  transform: translate3d(-500px, 0, 0);
 }
 
 .slide li {
