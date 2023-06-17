@@ -5,25 +5,47 @@ export default class Slide {
   constructor(slide, wrapper) {
     this.slide = document.querySelector(slide); // Seleciona a propriedade passada pelo usuário e armazena na propriedade slide.
     this.wrapper = document.querySelector(wrapper); // Seleciona a propriedade passada pelo usuário e armazena na propriedade wrapper.
+
+    // O objeto distance é responsável por armazenar as distâncias do mouse.
+    this.distance = {
+      finalPosition: 0, // Posição final do mouse, começa com 0.
+      startX: 0, // Posição inicial do mouse, começa com 0.
+      movement: 0, // Movimento do mouse no momento clicado, começa com 0.
+    };
   }
 
-  // Método responsável por capturar a posição do mouse quando o usuário clicar no wrapper.
+  // Método responsável por mover o slide de acordo com a distância do mouse.
+  moveSlide(distanceX) {
+    this.distance.movePosition = distanceX; // Armazena a distância do mouse na propriedade movePosition.
+    this.slide.style.transform = `translate3d(${distanceX}px, 0, 0)`; // Move o slide de acordo com a distância do mouse presente no parâmetro distanceX.
+  }
+
+  // Método responsável por atualizar a posição do mouse.
+  updatePosition(clientX) {
+    this.distance.movement = (this.distance.startX - clientX) * 1.6; // Armazena a distância do movimento do mouse na propriedade movement multiplicando por 1.6 para que o movimento do carrossel seja mais rápido.
+    return this.distance.finalPosition - this.distance.movement; // Retorna a posição final do mouse menos a distância do movimento do mouse.
+  }
+
+  // Método responsável por capturar a posição do mouse quando o usuário clicar no botão do mouse.
   onStart(event) {
     event.preventDefault(); // Previne o comportamento padrão do evento.
+    this.distance.startX = event.clientX; // Armazena a posição inicial do mouse na propriedade startX.
     this.wrapper.addEventListener("mousemove", this.onMove); // Adiciona o evento mousemove ao wrapper que ao ser acionado executa o método onMove.
   }
 
   // Método responsável por capturar a posição do mouse quando o usuário mover o mouse.
   onMove(event) {
-    console.log("Moveu")
+    const finalPosition = this.updatePosition(event.clientX); // Executa o método updatePosition passando a posição do mouse.
+    this.moveSlide(finalPosition); // Executa o método moveSlide passando a posição atual do mouse.
   }
 
   // Método responsável por capturar a posição do mouse quando o usuário soltar o botão do mouse.
-  onEnd(event) {
+  onEnd() {
     this.wrapper.removeEventListener("mousemove", this.onMove); // Remove o evento mousemove do wrapper que ao ser acionado executa o método onMove.
+    this.distance.finalPosition = this.distance.movePosition; // Armazena a posição final do mouse na propriedade finalPosition.
   }
 
-  // Método responsável por adicionar os eventos de mousedown e mouseup ao wrapper.
+  // Método responsável por adicionar os eventos ao wrapper.
   addSlideEvents() {
     this.wrapper.addEventListener("mousedown", this.onStart); // Adiciona o evento mousedown ao wrapper que ao ser acionado executa o método onStart.
     this.wrapper.addEventListener("mouseup", this.onEnd); // Adiciona o evento mouseup ao wrapper que ao ser acionado executa o método onEnd.
