@@ -1,3 +1,5 @@
+import debounce from "./debounce.js"; // Importa a função debounce do arquivo debounce.js.
+
 // Classe responsável por fazer o carrossel funcionar.
 // O export é usado para permitir que o código seja usado em outro arquivo JS. O default é geralmente usado para quando tem que exportar somente uma função/classe do mesmo arquivo.
 export default class Slide {
@@ -12,11 +14,13 @@ export default class Slide {
       startX: 0, // Posição inicial do mouse, começa com 0.
       movement: 0, // Movimento do mouse no momento clicado, começa com 0.
     };
+
+    this.activeClass = "active"; // Armazena a classe active na propriedade activeClass.
   }
 
   // Método responsável por adicionar efeito de transição ao slide.
   transition(active) {
-    this.slide.style.transition = active ? 'transform .3s' : ''; // Se o parâmetro active for true, adiciona o efeito de transição ao slide, se não, remove o efeito de transição do slide.
+    this.slide.style.transition = active ? "transform .3s" : ""; // Se o parâmetro active for true, adiciona o efeito de transição ao slide, se não, remove o efeito de transição do slide.
   }
 
   // Método responsável por mover o slide de acordo com a distância do mouse.
@@ -77,7 +81,10 @@ export default class Slide {
     if (this.distance.movement > 120 && this.index.next !== undefined) {
       this.activeNextSlide(); // Executa o método activeNextSlide responsável por mudar o slide para o próximo.
     } // Senão se a a distância do movimento do mouse for menor que -120 e a propriedade previous do objeto index for diferente de undefined, executa o else if.
-    else if (this.distance.movement < -120 && this.index.previous !== undefined) {
+    else if (
+      this.distance.movement < -120 &&
+      this.index.previous !== undefined
+    ) {
       this.activePreviousSlide(); // Executa o método activePreviousSlide responsável por mudar o slide para o anterior.
     } // Senão executa o else.
     else {
@@ -91,14 +98,6 @@ export default class Slide {
     this.wrapper.addEventListener("touchstart", this.onStart); // Adiciona o evento touchstart ao wrapper que ao ser acionado executa o método onStart.
     this.wrapper.addEventListener("mouseup", this.onEnd); // Adiciona o evento mouseup ao wrapper que ao ser acionado executa o método onEnd.
     this.wrapper.addEventListener("touchend", this.onEnd); // Adiciona o evento touchend ao wrapper que ao ser acionado executa o método onEnd.
-  }
-
-  // Método responsável por fazer o bind refereciar o objeto da classe Slide ao invés do elemento HTML.
-  bindEvents() {
-    // O bind(this) está fazendo com que o this dos métodos referencie o objeto da classe Slide, é sempre usado quando for passar um método como callback, geralmente em eventos de escuta.
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
   }
 
   // Método responsável por criar um objeto com as informações de navegação dos slides.
@@ -125,6 +124,8 @@ export default class Slide {
     this.slideIndexNav(index); // Executa o método slideIndexNav que é responsável por criar um objeto com as informações de navegação dos slides. Passa o index do slide que está sendo mostrado como parâmetro.
 
     this.distance.finalPosition = activeSlide.position; // Armazena a posição final do slide ativo na propriedade finalPosition para que o slide não volte para a posição inicial quando o usuário clicar no slide.
+
+    this.changeActiveClass(); // Executa o método changeActiveClass responsável por adicionar a classe active ao slide ativo.
   }
 
   // Método responsável por calcular a posição do slide.
@@ -147,6 +148,15 @@ export default class Slide {
     });
   }
 
+  // Método responsável por adicionar a classe active ao slide ativo.
+  changeActiveClass() {
+    // O forEach está percorrendo cada li do slideArray e a cada iteração armaenando o elemento na parâmetro item.
+    this.slideArray.forEach((item) => {
+      item.element.classList.remove(this.activeClass); // Remove a classe active de todos os slides.
+    });
+    this.slideArray[this.index.active].element.classList.add(this.activeClass); // Adiciona a classe active ao slide ativo.
+  }
+
   // Método responsável por mudar o slide para o anterior.
   activePreviousSlide() {
     // Se a propriedade previous do objeto index for diferente de undefined, executa o if.
@@ -163,6 +173,29 @@ export default class Slide {
     }
   }
 
+  // Método responsável por recalcular a posição do slide quando a tela for redimensionada.
+  onResize() {
+    // O setTimeout está executando a função anonima depois de 1 segundo.
+    setTimeout(() => {
+      this.slidesConfig(); // Executa o método slidesConfig responsável por configurar os slides.
+      this.changeSlide(this.index.active); // Executa o método changeSlide responsável por mudar o slide de acordo com o index passado no parâmetro. Passa o index do slide ativo como parâmetro.
+    }, 1000);
+  }
+
+  // Método responsável por adicionar o evento resize ao window.
+  addResizeEvent() {
+    window.addEventListener("resize", this.onResize); // Adiciona o evento resize ao window que ao ser acionado executa o método onResize.
+  }
+
+  // Método responsável por fazer o bind refereciar o objeto da classe Slide ao invés do elemento HTML.
+  bindEvents() {
+    // O bind(this) está fazendo com que o this dos métodos referencie o objeto da classe Slide, é sempre usado quando for passar um método como callback, geralmente em eventos de escuta.
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+    this.onResize = debounce(this.onResize.bind(this), 200); // O debounce está fazendo com que o método onResize seja executado somente depois de 1 segundo.
+  }
+
   // Método responsável por iniciar o carrossel.
   init() {
     // Se o wrapper e o slide existirem, executa o if.
@@ -171,6 +204,7 @@ export default class Slide {
       this.addSlideEvents(); // Executa o método addSlideEvents responsável por adicionar os eventos ao wrapper.
       this.slidesConfig(); // Executa o método slidesConfig responsável por configurar os slides.
       this.transition(true); // Executa o método transition responsável por adicionar efeito de transição ao slide. Passa true como parâmetro.
+      this.addResizeEvent(); // Executa o método addResizeEvent responsável por adicionar o evento resize ao window.
     }
     return this; // Está retornando o objeto criado para permitir a que o init possa usar ou acessar outros métodos da classe.
   }

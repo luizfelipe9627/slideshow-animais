@@ -1,5 +1,6 @@
-// Função que recebe um callback e um delay como parâmetro.
-function debounce(callback, delay) {
+// Função responsável por criar um delay na execução de uma função para evitar que a mesma seja executada várias vezes em um curto espaço de tempo, o que pode causar problemas de performance.
+// O export é usado para permitir que o código seja usado em outro arquivo JS. O default é geralmente usado para quando tem que exportar somente uma função/classe do mesmo arquivo.
+export default function debounce(callback, delay) {
   let timer; // Variável que armazena o timer.
 
   // Ao executar a função debounce retorna e executa uma função anônima. Essa função anônima recebe os parâmetros passados na função debounce.
