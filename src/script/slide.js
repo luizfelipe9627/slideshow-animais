@@ -28,32 +28,51 @@ export default class Slide {
 
   // Método responsável por capturar a posição do mouse quando o usuário clicar no botão do mouse.
   onStart(event) {
-    event.preventDefault(); // Previne o comportamento padrão do evento.
-    this.distance.startX = event.clientX; // Armazena a posição inicial do mouse na propriedade startX.
-    this.wrapper.addEventListener("mousemove", this.onMove); // Adiciona o evento mousemove ao wrapper que ao ser acionado executa o método onMove.
+    let movetype; // Cria a variável movetype.
+
+    // Se o evento for mousedown, executa o if se não, executa o else.
+    if (event.type === "mousedown") {
+      event.preventDefault(); // Previne o comportamento padrão do evento.
+      this.distance.startX = event.clientX; // Armazena a posição inicial do mouse na propriedade startX.
+      movetype = "mousemove"; // Armazena o tipo do evento na variável movetype.
+    } else {
+      this.distance.startX = event.changedTouches[0].clientX; // Armazena a posição inicial do touch mobile na propriedade startX.
+      movetype = "touchmove"; // Armazena o tipo do evento na variável movetype.
+    }
+
+    this.wrapper.addEventListener(movetype, this.onMove); // Adiciona o evento armazenado no movetype ao wrapper que ao ser acionado executa o método onMove.
   }
 
   // Método responsável por capturar a posição do mouse quando o usuário mover o mouse.
   onMove(event) {
-    const finalPosition = this.updatePosition(event.clientX); // Executa o método updatePosition passando a posição do mouse.
-    this.moveSlide(finalPosition); // Executa o método moveSlide passando a posição atual do mouse.
+    const pointerPosition =
+      event.type === "mousemove"
+        ? event.clientX
+        : event.changedTouches[0].clientX; // Se o evento for mousemove, armazena a posição do mouse na variável pointerPosition, se não, armazena a posição do touch mobile na variável pointerPosition.
+
+    const finalPosition = this.updatePosition(pointerPosition); // Armazena a posição final do mouse na variável finalPosition.
+
+    this.moveSlide(finalPosition); // Executa o método moveSlide passando a posição final do mouse como parâmetro.
   }
 
   // Método responsável por capturar a posição do mouse quando o usuário soltar o botão do mouse.
-  onEnd() {
-    this.wrapper.removeEventListener("mousemove", this.onMove); // Remove o evento mousemove do wrapper que ao ser acionado executa o método onMove.
+  onEnd(event) {
+    const movetype = event.type === "mouseup" ? "mousemove" : "touchmove"; // Se o evento for mouseup armazena mousemove na variável, se não, armazena touchmove na variável movetype.
+    this.wrapper.removeEventListener(movetype, this.onMove); // Remove o evento de escuta do wrapper ao ser acionado os eventos mouseup ou touchend.
     this.distance.finalPosition = this.distance.movePosition; // Armazena a posição final do mouse na propriedade finalPosition.
   }
 
   // Método responsável por adicionar os eventos ao wrapper.
   addSlideEvents() {
     this.wrapper.addEventListener("mousedown", this.onStart); // Adiciona o evento mousedown ao wrapper que ao ser acionado executa o método onStart.
+    this.wrapper.addEventListener("touchstart", this.onStart); // Adiciona o evento touchstart ao wrapper que ao ser acionado executa o método onStart.
     this.wrapper.addEventListener("mouseup", this.onEnd); // Adiciona o evento mouseup ao wrapper que ao ser acionado executa o método onEnd.
+    this.wrapper.addEventListener("touchend", this.onEnd); // Adiciona o evento touchend ao wrapper que ao ser acionado executa o método onEnd.
   }
 
   // Método responsável por fazer o bind refereciar o objeto da classe Slide ao invés do elemento HTML.
   bindEvents() {
-    // O bind(this) está fazendo com que o this dos métodos referencie o objeto da classe Slide, é sempre usado quando for passar um método como callback.
+    // O bind(this) está fazendo com que o this dos métodos referencie o objeto da classe Slide, é sempre usado quando for passar um método como callback, geralmente em eventos de escuta.
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
