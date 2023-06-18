@@ -78,12 +78,56 @@ export default class Slide {
     this.onEnd = this.onEnd.bind(this);
   }
 
+  // Método responsável por criar um objeto com as informações de navegação dos slides.
+  slideIndexNav(index) {
+    const last = this.slideArray.length - 1; // Armazena o último index do slideArray na variável last.
+
+    // Criado uma propriedade no objeto chamda index que contém um objeto que contém as informações de navegação dos slides.
+    this.index = {
+      // Se o index for igual a 0, armazena undefined na propriedade previous, se não, armazena o index do slide antes do ativo.
+      previous: index ? index - 1 : undefined, // Armazena o index do slide antes do ativo.
+
+      active: index, // Armazena o index do slide ativo.
+
+      // Se o index for igual ao último index do slideArray, armazena undefined na propriedade next, se não, armazena o index do slide depois do ativo.
+      next: index === last ? undefined : index + 1, // Armazena o index do slide depois do ativo.
+    };
+  }
+
+  // Método responsável por mudar o slide de acordo com o index passado no parâmetro.
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index]; // Armazena o slide ativo na variável activeSlide.
+    this.moveSlide(activeSlide.position); // Executa o método moveSlide passando o valor da propriedade position do slide ativo como parâmetro.
+    this.slideIndexNav(index); // Executa o método slideIndexNav passando o index do slide que está sendo mostrado como parâmetro.
+    this.distance.finalPosition = activeSlide.position; // Armazena a posição final do slide ativo na propriedade finalPosition para que o slide não volte para a posição inicial quando o usuário clicar no slide.
+  }
+
+  // Método responsável por calcular a posição do slide.
+  slidePosition(slide) {
+    const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2; // Armazena a margem do slide na variável margin.
+    return -(slide.offsetLeft - margin); // Retorna a posição do slide menos a margem.
+  }
+
+  // Método responsável por configurar os slides.
+  slidesConfig() {
+    // O spread operator (...) está transformando os elementos filhos do slide em um array e o map está percorrendo a array e retornando uma nova array com os elementos.
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element); // Armazena a posição do slide na variável position.
+      // Retorna um objeto com a posição e o elemento atual da iteração do map.
+      return {
+        position, // Retorna a posição do elemento atual da iteração do map,
+        element, // Retorna o elemento atual da iteração do map.
+      };
+    });
+  }
+
   // Método responsável por iniciar o carrossel.
   init() {
     // Se o wrapper e o slide existirem, executa o if.
     if (this.wrapper && this.slide) {
       this.bindEvents(); // Executa o método bindEvents.
       this.addSlideEvents(); // Executa o método addSlideEvents.
+      this.slidesConfig(); // Executa o método slidesConfig.
     }
     return this; // Está retornando o objeto criado para permitir a que o init possa usar ou acessar outros métodos da classe.
   }
