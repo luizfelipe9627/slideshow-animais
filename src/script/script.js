@@ -5,4 +5,6 @@ slide.init(); // Executa o método init que é responsável por iniciar o funcio
 
 slide.addArrow(".previous", ".next"); // Executa o método addArrow que é responsável por adicionar as setas de navegação do slide como parâmetro recebe as classes dos elementos HTML que serão as setas de navegação.
 
-console.log(slide); // Exibe no console o objeto slide.
+slide.addControl(); // Executa o método addControl que é responsável por adicionar os controles de navegação do slide.
+
+

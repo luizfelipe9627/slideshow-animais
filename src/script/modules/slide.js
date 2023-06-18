@@ -16,6 +16,8 @@ export default class Slide {
     };
 
     this.activeClass = "active"; // Armazena a classe active na propriedade activeClass.
+
+    this.changeEvent = new Event("changeEvent"); // Cria um evento personalizado chamado changeEvent e armazena na propriedade changeEvent.
   }
 
   // Método responsável por adicionar efeito de transição ao slide.
@@ -126,6 +128,8 @@ export default class Slide {
     this.distance.finalPosition = activeSlide.position; // Armazena a posição final do slide ativo na propriedade finalPosition para que o slide não volte para a posição inicial quando o usuário clicar no slide.
 
     this.changeActiveClass(); // Executa o método changeActiveClass responsável por adicionar a classe active ao slide ativo.
+
+    this.wrapper.dispatchEvent(this.changeEvent); // Dispara o evento changeEvent no wrapper.
   }
 
   // Método responsável por calcular a posição do slide.
