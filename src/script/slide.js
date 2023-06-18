@@ -14,6 +14,11 @@ export default class Slide {
     };
   }
 
+  // Método responsável por adicionar efeito de transição ao slide.
+  transition(active) {
+    this.slide.style.transition = active ? 'transform .3s' : ''; // Se o parâmetro active for true, adiciona o efeito de transição ao slide, se não, remove o efeito de transição do slide.
+  }
+
   // Método responsável por mover o slide de acordo com a distância do mouse.
   moveSlide(distanceX) {
     this.distance.movePosition = distanceX; // Armazena a distância do mouse na propriedade movePosition.
@@ -41,6 +46,7 @@ export default class Slide {
     }
 
     this.wrapper.addEventListener(movetype, this.onMove); // Adiciona o evento armazenado no movetype ao wrapper que ao ser acionado executa o método onMove.
+    this.transition(false); // Executa o método transition passando false como parâmetro.
   }
 
   // Método responsável por capturar a posição do mouse quando o usuário mover o mouse.
@@ -60,6 +66,23 @@ export default class Slide {
     const movetype = event.type === "mouseup" ? "mousemove" : "touchmove"; // Se o evento for mouseup armazena mousemove na variável, se não, armazena touchmove na variável movetype.
     this.wrapper.removeEventListener(movetype, this.onMove); // Remove o evento de escuta do wrapper ao ser acionado os eventos mouseup ou touchend.
     this.distance.finalPosition = this.distance.movePosition; // Armazena a posição final do mouse na propriedade finalPosition.
+
+    this.transition(true); // Executa o método transition responsável por adicionar efeito de transição ao slide. Passa true como parâmetro.
+    this.changeSlideOnEnd(); // Executa o método changeSlideOnEnd responsável por mudar o slide de acordo com a posição final do mouse.
+  }
+
+  // Método responsável por mudar o slide de acordo com a posição final do mouse.
+  changeSlideOnEnd() {
+    // Se a a distância do movimento do mouse for maior que 120, e a propriedade next do objeto index for diferente de undefined, executa o if.
+    if (this.distance.movement > 120 && this.index.next !== undefined) {
+      this.activeNextSlide(); // Executa o método activeNextSlide responsável por mudar o slide para o próximo.
+    } // Senão se a a distância do movimento do mouse for menor que -120 e a propriedade previous do objeto index for diferente de undefined, executa o else if.
+    else if (this.distance.movement < -120 && this.index.previous !== undefined) {
+      this.activePreviousSlide(); // Executa o método activePreviousSlide responsável por mudar o slide para o anterior.
+    } // Senão executa o else.
+    else {
+      this.changeSlide(this.index.active); // Executa o método changeSlide responsável por mudar o slide de acordo com o index passado no parâmetro. Passa o index do slide ativo como parâmetro.
+    }
   }
 
   // Método responsável por adicionar os eventos ao wrapper.
@@ -97,15 +120,17 @@ export default class Slide {
   // Método responsável por mudar o slide de acordo com o index passado no parâmetro.
   changeSlide(index) {
     const activeSlide = this.slideArray[index]; // Armazena o slide ativo na variável activeSlide.
-    this.moveSlide(activeSlide.position); // Executa o método moveSlide passando o valor da propriedade position do slide ativo como parâmetro.
-    this.slideIndexNav(index); // Executa o método slideIndexNav passando o index do slide que está sendo mostrado como parâmetro.
+
+    this.moveSlide(activeSlide.position); // Executa o método moveSlide que é responsável por mover o slide. Passa o valor da propriedade position do slide ativo como parâmetro.
+    this.slideIndexNav(index); // Executa o método slideIndexNav que é responsável por criar um objeto com as informações de navegação dos slides. Passa o index do slide que está sendo mostrado como parâmetro.
+
     this.distance.finalPosition = activeSlide.position; // Armazena a posição final do slide ativo na propriedade finalPosition para que o slide não volte para a posição inicial quando o usuário clicar no slide.
   }
 
   // Método responsável por calcular a posição do slide.
   slidePosition(slide) {
     const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2; // Armazena a margem do slide na variável margin.
-    return -(slide.offsetLeft - margin); // Retorna a posição do slide menos a margem.
+    return -(slide.offsetLeft - margin); // Retorna o slide.offsetLeft menos a margem do slide para que o slide fique centralizado.
   }
 
   // Método responsável por configurar os slides.
@@ -113,6 +138,7 @@ export default class Slide {
     // O spread operator (...) está transformando os elementos filhos do slide em um array e o map está percorrendo a array e retornando uma nova array com os elementos.
     this.slideArray = [...this.slide.children].map((element) => {
       const position = this.slidePosition(element); // Armazena a posição do slide na variável position.
+
       // Retorna um objeto com a posição e o elemento atual da iteração do map.
       return {
         position, // Retorna a posição do elemento atual da iteração do map,
@@ -121,13 +147,30 @@ export default class Slide {
     });
   }
 
+  // Método responsável por mudar o slide para o anterior.
+  activePreviousSlide() {
+    // Se a propriedade previous do objeto index for diferente de undefined, executa o if.
+    if (this.index.previous !== undefined) {
+      this.changeSlide(this.index.previous); // Executa o método changeSlide responsável por mudar o slide de acordo com o index passado no parâmetro. Passa o index do slide anterior ao ativo como parâmetro.
+    }
+  }
+
+  // Método responsável por mudar o slide para o próximo.
+  activeNextSlide() {
+    // Se a propriedade next do objeto index for diferente de undefined, executa o if.
+    if (this.index.next !== undefined) {
+      this.changeSlide(this.index.next); // Executa o método changeSlide responsável por mudar o slide de acordo com o index passado no parâmetro. Passa o index do slide depois do ativo como parâmetro.
+    }
+  }
+
   // Método responsável por iniciar o carrossel.
   init() {
     // Se o wrapper e o slide existirem, executa o if.
     if (this.wrapper && this.slide) {
-      this.bindEvents(); // Executa o método bindEvents.
-      this.addSlideEvents(); // Executa o método addSlideEvents.
-      this.slidesConfig(); // Executa o método slidesConfig.
+      this.bindEvents(); // Executa o método bindEvents responsável por fazer o bind refereciar o objeto da classe Slide ao invés do elemento HTML.
+      this.addSlideEvents(); // Executa o método addSlideEvents responsável por adicionar os eventos ao wrapper.
+      this.slidesConfig(); // Executa o método slidesConfig responsável por configurar os slides.
+      this.transition(true); // Executa o método transition responsável por adicionar efeito de transição ao slide. Passa true como parâmetro.
     }
     return this; // Está retornando o objeto criado para permitir a que o init possa usar ou acessar outros métodos da classe.
   }
