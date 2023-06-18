@@ -194,6 +194,8 @@ export default class Slide {
     this.onMove = this.onMove.bind(this);
     this.onEnd = this.onEnd.bind(this);
     this.onResize = debounce(this.onResize.bind(this), 200); // O debounce está fazendo com que o método onResize seja executado somente depois de 1 segundo.
+    this.activeNextSlide = this.activeNextSlide.bind(this);
+    this.activePreviousSlide = this.activePreviousSlide.bind(this);
   }
 
   // Método responsável por iniciar o carrossel.
@@ -205,6 +207,7 @@ export default class Slide {
       this.slidesConfig(); // Executa o método slidesConfig responsável por configurar os slides.
       this.transition(true); // Executa o método transition responsável por adicionar efeito de transição ao slide. Passa true como parâmetro.
       this.addResizeEvent(); // Executa o método addResizeEvent responsável por adicionar o evento resize ao window.
+      this.changeSlide(0); // Executa o método changeSlide responsável por mudar o slide de acordo com o index passado no parâmetro. Passa 0 como parâmetro.
     }
     return this; // Está retornando o objeto criado para permitir a que o init possa usar ou acessar outros métodos da classe.
   }
