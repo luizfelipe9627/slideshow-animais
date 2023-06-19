@@ -1,0 +1,24 @@
+.arrow-nav {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.arrow-nav button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  color: #FFF;
+  width: 40px;
+  height: 40px;
+  background: #FB5 url('../../assets/svg/arrow.svg') center center no-repeat;
+  opacity: .8;
+}
+
+.arrow-nav button:hover {
+  opacity: 1;
+}
+
+.arrow-nav button.previous {
+  transform: rotate(-180deg);
+}
